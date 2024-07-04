@@ -9,8 +9,9 @@ public class gamePanel extends JPanel implements ActionListener {
     Image backgroundImage;
     Image fish1mirror;
     Image[] fishImages;
-    int[] fishX={400,250,500,280,350,560};
-    int[] fishY={300,300,280,350,250,260};
+    int[] fishX = {400, 250, 500, 280, 350, 560};
+    int[] fishY = {300, 300, 280, 350, 250, 260};
+    boolean[] movingLeft = {true, true, true, true, true, true};
     Timer timer;
     final int numFish = 6;
 
@@ -22,7 +23,7 @@ public class gamePanel extends JPanel implements ActionListener {
             for (int i = 0; i < numFish; i++) {
                 fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
             }
-            fish1mirror=new ImageIcon(getClass().getResource("/fish1mirror.png")).getImage();
+            fish1mirror = new ImageIcon(getClass().getResource("/fish1mirror.png")).getImage();
         } catch (Exception e) {
             System.out.println("Error loading image: " + e.getMessage());
         }
@@ -49,29 +50,36 @@ public class gamePanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         for (int i = 0; i < numFish; i++) {
-            fishX[i] -= 5;
-            if(fishY[i]<=260) {
-                if (fishX[i] < 160) {
-                    fishX[i] = panel_Width; // Reset to start from the right again
+            if (movingLeft[i]) {
+                fishX[i] -= 5;
+                if (fishX[i] < getLeftBoundary(fishY[i])) {
+                    fishX[i] = getLeftBoundary(fishY[i]);
+                    movingLeft[i] = false;
+                    fishImages[i] = fish1mirror;
                 }
-                else
-                    continue;
-            }
-            else if(fishY[i]<=300) {
-                if (fishX[i] < 200) {
-                    fishX[i] = panel_Width; // Reset to start from the right again
+            } else {
+                fishX[i] += 5;
+                if (fishX[i] > getRightBoundary(fishY[i])) {
+                    fishX[i] = getRightBoundary(fishY[i]);
+                    movingLeft[i] = true;
+                    fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
                 }
-                else
-                    continue;
-            }
-            else {
-                if (fishX[i] < 260) {
-                    fishX[i] = panel_Width; // Reset to start from the right again
-                }
-                else
-                    continue;
             }
         }
         repaint();
+    }
+
+    private int getLeftBoundary(int y) {
+        if (y <= 260) {
+            return 160;
+        } else if (y <= 300) {
+            return 200;
+        } else {
+            return 260;
+        }
+    }
+
+    private int getRightBoundary(int y) {
+        return panel_Width;
     }
 }
