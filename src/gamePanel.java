@@ -2,65 +2,79 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 public class gamePanel extends JPanel implements ActionListener {
-    final int panel_Width = 600;
-    final int panel_Height = 480;
-    Image backgroundImage;
-    Image fish1mirror;
-    Image fisherman1;
-    Image fisherman1tookpositon;
-    Image fisherman1catchedfish;
-    Image fisherman1missedfish;
-    Image fisherman1withoutbait;
+    // Constants
+    private static final int PANEL_WIDTH = 600;
+    private static final int PANEL_HEIGHT = 480;
+    private static final int NUM_FISH = 7;
 
-    Image[] fishImages;
+    // Images
+    private Image backgroundImage;
+    private Image fish1mirror;
+    private Image fisherman1;
+    private Image fisherman1TookPosition;
+    private Image fisherman1CaughtFish;
+    private Image fisherman1MissedFish;
+    private Image fisherman1WithoutBait;
+    private Image[] fishImages;
 
-    int[] fishX = {400, 250, 500, 280, 340, 650,100};
-    int[] fishY = {300, 300, 280, 350, 250, 255,248};
-    boolean[] movingLeft = {true, true, true, true, true, true,true};
-    Timer timer;
-    final int numFish = 7;
-    JButton button1,button2;
+    // Fish positions and directions
+    private int[] fishX = {400, 250, 500, 280, 340, 650, 100};
+    private int[] fishY = {300, 300, 280, 350, 250, 255, 248};
+    private boolean[] movingLeft = {true, true, true, true, true, true, true};
 
-    gamePanel() {
-        this.setPreferredSize(new Dimension(panel_Width, panel_Height));
+    // Timer for animation
+    private Timer timer;
+
+    // Buttons
+    private JButton button1, button2;
+
+    // Score
+    private int score = 0;
+
+    // Constructor
+    public gamePanel() {
+        this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.setLayout(null);
-        // Use null layout to position components manually
-//      JPanel Panel2=new JPanel();
-//       Panel2.setLayout(null);
-//        Panel2.setBounds(225, 270, 5, 5); // Fixed position and size for nested panel
-//        Panel2.setBackground(Color.RED);
-//       this.add(Panel2);
+
+        // Load images
+        loadImages();
+
+        // Set background color
+        this.setBackground(Color.black);
+
+        // Create and add buttons
+        button1 = new JButton("PULL");
+        button2 = new JButton("USE Bait");
+        button1.setBounds(200, 440, 80, 30);
+        button2.setBounds(320, 440, 100, 30);
+        button1.addActionListener(new ButtonClickListener());
+        button2.addActionListener(new ButtonClickListener());
+        this.add(button2);
+        this.add(button1);
+
+        // Start timer for animation
+        timer = new Timer(100, this);
+        timer.start();
+    }
+
+    // Load images method
+    private void loadImages() {
         try {
             backgroundImage = new ImageIcon(getClass().getResource("/frame.png")).getImage();
-            fisherman1tookpositon = new ImageIcon(getClass().getResource("/fisherman1tookposition.png")).getImage();
-            fisherman1catchedfish = new ImageIcon(getClass().getResource("/fisherman1catchedfish.png")).getImage();
-            fisherman1missedfish = new ImageIcon(getClass().getResource("/fisherman1missedfish.png")).getImage();
-            fisherman1withoutbait = new ImageIcon(getClass().getResource("/fisherman1withoutbait.png")).getImage();
-            fisherman1=fisherman1tookpositon;
-            fishImages = new Image[numFish];
-            for (int i = 0; i < numFish; i++) {
+            fisherman1TookPosition = new ImageIcon(getClass().getResource("/fisherman1tookposition.png")).getImage();
+            fisherman1CaughtFish = new ImageIcon(getClass().getResource("/fisherman1catchedfish.png")).getImage();
+            fisherman1MissedFish = new ImageIcon(getClass().getResource("/fisherman1missedfish.png")).getImage();
+            fisherman1WithoutBait = new ImageIcon(getClass().getResource("/fisherman1withoutbait.png")).getImage();
+            fisherman1 = fisherman1TookPosition;
+            fishImages = new Image[NUM_FISH];
+            for (int i = 0; i < NUM_FISH; i++) {
                 fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
             }
             fish1mirror = new ImageIcon(getClass().getResource("/fish1mirror.png")).getImage();
         } catch (Exception e) {
             System.out.println("Error loading image: " + e.getMessage());
         }
-        this.setBackground(Color.black);
-
-        // Create and add two button
-        button1 = new JButton("PULL");
-        button2=new JButton("USE Bait");
-        button1.setBounds(200, 440, 80, 30);
-        button2.setBounds(320,440,100,30);// Set button position and size
-        button1.addActionListener(new ButtonClickListener());
-        button2.addActionListener(new ButtonClickListener());
-        this.add(button2);
-        this.add(button1);
-
-        timer = new Timer(100, this);
-        timer.start();
     }
 
     @Override
@@ -73,16 +87,20 @@ public class gamePanel extends JPanel implements ActionListener {
         if (fisherman1 != null) {
             g2D.drawImage(fisherman1, 40, 10, 200, 300, this);
         }
-        for (int i = 0; i < numFish; i++) {
+        for (int i = 0; i < NUM_FISH; i++) {
             if (fishImages[i] != null) {
                 g2D.drawImage(fishImages[i], fishX[i], fishY[i], 60, 40, this);
             }
         }
+        // Draw the score
+        g2D.setColor(Color.WHITE);
+        g2D.setFont(new Font("Arial", Font.BOLD, 20));
+        g2D.drawString("Score: " + score, 10, 20);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        for (int i = 0; i < numFish; i++) {
+        for (int i = 0; i < NUM_FISH; i++) {
             if (movingLeft[i]) {
                 fishX[i] -= 5;
                 if (fishX[i] < getLeftBoundary(fishY[i])) {
@@ -113,42 +131,40 @@ public class gamePanel extends JPanel implements ActionListener {
     }
 
     private int getRightBoundary(int y) {
-        return panel_Width;
+        return PANEL_WIDTH;
     }
 
     private class ButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            // Perform action on button click
-            if(e.getSource()==button1)
-            {  if(fisherman1==fisherman1tookpositon)
-                catchingfish();
-            }
-            else{
-                usingbait();
+            if (e.getSource() == button1) {
+                if (fisherman1 == fisherman1TookPosition) {
+                    catchingFish();
+                }
+            } else {
+                usingBait();
             }
         }
     }
 
-    public void catchingfish() {
-        boolean checkfishcatching=true;
-        // Toggle fisherman image between fisherman1 and fisherman2
-        for(int i=4;i<7;i++)
-        {
-            if((fishX[i]>=220&&fishX[i]<=230)&&movingLeft[i]) {
-                    fisherman1 = fisherman1catchedfish;
-                    fishX[i] = 650;
-                    checkfishcatching=false;
+    public void catchingFish() {
+        boolean checkFishCatching = true;
+        for (int i = 4; i < 7; i++) {
+            if ((fishX[i] >= 220 && fishX[i] <= 230) && movingLeft[i]) {
+                fisherman1 = fisherman1CaughtFish;
+                fishX[i] = 650;
+                score += 10;
+                checkFishCatching = false;
             }
         }
-           if(checkfishcatching)
-               fisherman1=fisherman1missedfish;
-        repaint();
-    }
-    public void usingbait(){
-
-         fisherman1=fisherman1tookpositon;
+        if (checkFishCatching) {
+            fisherman1 = fisherman1MissedFish;
+        }
         repaint();
     }
 
+    public void usingBait() {
+        fisherman1 = fisherman1TookPosition;
+        repaint();
+    }
 }
