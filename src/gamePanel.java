@@ -49,7 +49,7 @@ public class gamePanel extends JPanel implements ActionListener {
         }
         this.setBackground(Color.black);
 
-        // Create and add button
+        // Create and add two button
         button1 = new JButton("PULL");
         button2=new JButton("USE Bait");
         button1.setBounds(200, 440, 80, 30);
