@@ -32,10 +32,11 @@ public class gamePanel extends JPanel implements ActionListener {
     private JButton button1, button2;
 
     // Score
-    private int score = 0;
+    private int score = 10;
 
     //music
     private Clip clip;
+    private boolean gameover=false;
 
     // Constructor
     public gamePanel() {
@@ -113,6 +114,12 @@ public class gamePanel extends JPanel implements ActionListener {
         g2D.setColor(Color.WHITE);
         g2D.setFont(new Font("Arial", Font.BOLD, 20));
         g2D.drawString("Score: " + score, 10, 20);
+        if(gameover)
+        {
+            g2D.setColor(Color.BLUE);
+            g2D.setFont(new Font("Arial",Font.BOLD,60));
+            g2D.drawString("GAME OVER",PANEL_HEIGHT/2-100,PANEL_WIDTH/2-100);
+        }
     }
 
     @Override
@@ -154,12 +161,14 @@ public class gamePanel extends JPanel implements ActionListener {
     private class ButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == button1) {
-                if (fisherman1 == fisherman1TookPosition) {
-                    catchingFish();
+            if (!gameover) {
+                if (e.getSource() == button1) {
+                    if (fisherman1 == fisherman1TookPosition) {
+                        catchingFish();
+                    }
+                } else {
+                    usingBait();
                 }
-            } else {
-                usingBait();
             }
         }
     }
@@ -181,6 +190,12 @@ public class gamePanel extends JPanel implements ActionListener {
     }
 
     public void usingBait() {
+        score -=5;
+        if (score <= 0) {
+            score = 0;
+            gameover = true;
+            clip.stop();
+        }
         fisherman1 = fisherman1TookPosition;
         repaint();
     }
