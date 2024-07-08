@@ -1,7 +1,9 @@
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 public class gamePanel extends JPanel implements ActionListener {
     // Constants
     private static final int PANEL_WIDTH = 600;
@@ -32,6 +34,9 @@ public class gamePanel extends JPanel implements ActionListener {
     // Score
     private int score = 0;
 
+    //music
+    private Clip clip;
+
     // Constructor
     public gamePanel() {
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -39,7 +44,8 @@ public class gamePanel extends JPanel implements ActionListener {
 
         // Load images
         loadImages();
-
+        // Load and play background music
+        loadMusic();
         // Set background color
         this.setBackground(Color.black);
 
@@ -74,6 +80,17 @@ public class gamePanel extends JPanel implements ActionListener {
             fish1mirror = new ImageIcon(getClass().getResource("/fish1mirror.png")).getImage();
         } catch (Exception e) {
             System.out.println("Error loading image: " + e.getMessage());
+        }
+    }
+    // Load and play background music
+    private void loadMusic() {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource("/backgroundmusic.wav"));
+            clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            System.out.println("Error playing background music: " + e.getMessage());
         }
     }
 
