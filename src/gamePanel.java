@@ -37,6 +37,7 @@ public class gamePanel extends JPanel implements ActionListener {
     //music
     private Clip clip;
     private boolean gameover=false;
+    private int fishSpeed = 5;
 
     // Constructor
     public gamePanel() {
@@ -134,14 +135,14 @@ public class gamePanel extends JPanel implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         for (int i = 0; i < NUM_FISH; i++) {
             if (movingLeft[i]) {
-                fishX[i] -= 5;
+                fishX[i] -= fishSpeed;
                 if (fishX[i] < getLeftBoundary(fishY[i])) {
                     fishX[i] = getLeftBoundary(fishY[i]);
                     movingLeft[i] = false;
                     fishImages[i] = fish1mirror;
                 }
             } else {
-                fishX[i] += 5;
+                fishX[i] += fishSpeed;
                 if (fishX[i] > getRightBoundary(fishY[i])) {
                     fishX[i] = getRightBoundary(fishY[i]);
                     movingLeft[i] = true;
@@ -150,6 +151,17 @@ public class gamePanel extends JPanel implements ActionListener {
             }
         }
         repaint();
+    }
+
+    private void updateFishSpeed(){
+        if(score>=50)
+            fishSpeed=50;
+        else if(score>=30)
+            fishSpeed=30;
+        else if(score>=20)
+            fishSpeed=20;
+        else
+            fishSpeed=5;
     }
 
     private int getLeftBoundary(int y) {
