@@ -119,12 +119,12 @@ public class gamePanel extends JPanel implements ActionListener {
         if (fisherman1 != null) {
             g2D.drawImage(fisherman1, 40, 10, 200, 300, this);
         }
-        if(gameStarted){
+        if(gameStarted && !gameover){
         for (int i = 0; i < NUM_FISH; i++) {
             if (fishImages[i] != null) {
                 g2D.drawImage(fishImages[i], fishX[i], fishY[i], 60, 40, this);
             }
-        }
+          }
         }
         // Draw the score
         g2D.setColor(Color.WHITE);
@@ -141,7 +141,7 @@ public class gamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(gameStarted) {
+        if(gameStarted && !gameover) {
             updateFishSpeed();
 
             for (int i = 0; i < NUM_FISH; i++) {
