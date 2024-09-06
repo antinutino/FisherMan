@@ -29,7 +29,7 @@ public class gamePanel extends JPanel implements ActionListener {
     private Timer timer;
 
     // Buttons
-    private JButton button1, button2, playAgainButton;
+    private JButton button1, button2, playAgainButton,startButton;
 
     // Score
     private int score = 10;
@@ -37,6 +37,7 @@ public class gamePanel extends JPanel implements ActionListener {
     //music
     private Clip clip;
     private boolean gameover=false;
+    private boolean gameStarted=false;
     private int fishSpeed=5;
     // Constructor
     public gamePanel() {
@@ -54,19 +55,24 @@ public class gamePanel extends JPanel implements ActionListener {
         button1 = new JButton("PULL");
         button2 = new JButton("USE Bait");
         playAgainButton=new JButton("Play Again");
+        startButton=new JButton("Start Game");
 
         button1.setBounds(200, 440, 80, 30);
         button2.setBounds(320, 440, 100, 30);
         playAgainButton.setBounds(250,350,120,50);
+        startButton.setBounds(250,350,120,50);
         playAgainButton.setVisible(false);
+        startButton.setVisible(true);
 
         button1.addActionListener(new ButtonClickListener());
         button2.addActionListener(new ButtonClickListener());
         playAgainButton.addActionListener(new ButtonClickListener());
+        startButton.addActionListener(new ButtonClickListener());
 
         this.add(button2);
         this.add(button1);
         this.add(playAgainButton);
+        this.add(startButton);
 
         // Start timer for animation
         timer = new Timer(100, this);
@@ -113,10 +119,12 @@ public class gamePanel extends JPanel implements ActionListener {
         if (fisherman1 != null) {
             g2D.drawImage(fisherman1, 40, 10, 200, 300, this);
         }
+        if(gameStarted){
         for (int i = 0; i < NUM_FISH; i++) {
             if (fishImages[i] != null) {
                 g2D.drawImage(fishImages[i], fishX[i], fishY[i], 60, 40, this);
             }
+        }
         }
         // Draw the score
         g2D.setColor(Color.WHITE);
@@ -133,22 +141,24 @@ public class gamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        updateFishSpeed();
+        if(gameStarted) {
+            updateFishSpeed();
 
-        for (int i = 0; i < NUM_FISH; i++) {
-            if (movingLeft[i]) {
-                fishX[i] -= fishSpeed;
-                if (fishX[i] < getLeftBoundary(fishY[i])) {
-                    fishX[i] = getLeftBoundary(fishY[i]);
-                    movingLeft[i] = false;
-                    fishImages[i] = fish1mirror;
-                }
-            } else {
-                fishX[i] += fishSpeed;
-                if (fishX[i] > getRightBoundary(fishY[i])) {
-                    fishX[i] = getRightBoundary(fishY[i]);
-                    movingLeft[i] = true;
-                    fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
+            for (int i = 0; i < NUM_FISH; i++) {
+                if (movingLeft[i]) {
+                    fishX[i] -= fishSpeed;
+                    if (fishX[i] < getLeftBoundary(fishY[i])) {
+                        fishX[i] = getLeftBoundary(fishY[i]);
+                        movingLeft[i] = false;
+                        fishImages[i] = fish1mirror;
+                    }
+                } else {
+                    fishX[i] += fishSpeed;
+                    if (fishX[i] > getRightBoundary(fishY[i])) {
+                        fishX[i] = getRightBoundary(fishY[i]);
+                        movingLeft[i] = true;
+                        fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
+                    }
                 }
             }
         }
@@ -186,7 +196,10 @@ public class gamePanel extends JPanel implements ActionListener {
             if(e.getSource()==playAgainButton){
                 resetGame();
             }
-           else if (!gameover) {
+            else if(e.getSource()==startButton){
+                startGame();
+            }
+           else if (!gameover && gameStarted) {
                 if (e.getSource() == button1) {
                     if (fisherman1 == fisherman1TookPosition) {
                         catchingFish();
@@ -196,6 +209,11 @@ public class gamePanel extends JPanel implements ActionListener {
                 }
             }
         }
+    }
+    public void startGame(){
+        gameStarted=true;
+        startButton.setVisible(false);
+        repaint();
     }
 
     public void catchingFish() {
@@ -234,6 +252,8 @@ public class gamePanel extends JPanel implements ActionListener {
         movingLeft=new boolean[]{true,true,true,true,true,true,true};
         fisherman1=fisherman1TookPosition;
         gameover=false;
+        gameStarted=false;
+        startButton.setVisible(true);
         playAgainButton.setVisible(false);
         clip.loop(Clip.LOOP_CONTINUOUSLY);
         repaint();
