@@ -33,12 +33,11 @@ public class gamePanel extends JPanel implements ActionListener {
 
     // Score
     private int score = 10;
-
+    private int coin=0;
     //music
     private Clip clip;
     private boolean gameover=false;
-    private int fishSpeed = 5;
-
+    private int fishSpeed=5;
     // Constructor
     public gamePanel() {
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -123,6 +122,7 @@ public class gamePanel extends JPanel implements ActionListener {
         g2D.setColor(Color.WHITE);
         g2D.setFont(new Font("Arial", Font.BOLD, 20));
         g2D.drawString("Score: " + score, 10, 20);
+        g2D.drawString("Coins: "+coin,PANEL_WIDTH/2-40,20);
         if(gameover)
         {
             g2D.setColor(Color.BLUE);
@@ -133,6 +133,8 @@ public class gamePanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        updateFishSpeed();
+
         for (int i = 0; i < NUM_FISH; i++) {
             if (movingLeft[i]) {
                 fishX[i] -= fishSpeed;
@@ -155,11 +157,11 @@ public class gamePanel extends JPanel implements ActionListener {
 
     private void updateFishSpeed(){
         if(score>=50)
-            fishSpeed=50;
+            fishSpeed=12;
         else if(score>=30)
-            fishSpeed=30;
+            fishSpeed=10;
         else if(score>=20)
-            fishSpeed=20;
+            fishSpeed=7;
         else
             fishSpeed=5;
     }
@@ -203,6 +205,7 @@ public class gamePanel extends JPanel implements ActionListener {
                 fisherman1 = fisherman1CaughtFish;
                 fishX[i] = 650;
                 score += 10;
+                coin+=1;
                 checkFishCatching = false;
             }
         }
@@ -225,6 +228,7 @@ public class gamePanel extends JPanel implements ActionListener {
     }
     public void resetGame(){
         score=10;
+        coin=0;
         fishX=new int[]{400,250,500,280,340,650,100};
         fishY=new int[]{300,300,280,350,250,255,248};
         movingLeft=new boolean[]{true,true,true,true,true,true,true};
