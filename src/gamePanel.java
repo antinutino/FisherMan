@@ -29,7 +29,7 @@ public class gamePanel extends JPanel implements ActionListener {
     private Timer timer;
 
     // Buttons
-    private JButton button1, button2;
+    private JButton button1, button2, playAgainButton;
 
     // Score
     private int score = 10;
@@ -53,12 +53,20 @@ public class gamePanel extends JPanel implements ActionListener {
         // Create and add buttons
         button1 = new JButton("PULL");
         button2 = new JButton("USE Bait");
+        playAgainButton=new JButton("Play Again");
+
         button1.setBounds(200, 440, 80, 30);
         button2.setBounds(320, 440, 100, 30);
+        playAgainButton.setBounds(250,350,120,50);
+        playAgainButton.setVisible(false);
+
         button1.addActionListener(new ButtonClickListener());
         button2.addActionListener(new ButtonClickListener());
+        playAgainButton.addActionListener(new ButtonClickListener());
+
         this.add(button2);
         this.add(button1);
+        this.add(playAgainButton);
 
         // Start timer for animation
         timer = new Timer(100, this);
@@ -161,12 +169,15 @@ public class gamePanel extends JPanel implements ActionListener {
     private class ButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (!gameover) {
+            if(e.getSource()==playAgainButton){
+                resetGame();
+            }
+           else if (!gameover) {
                 if (e.getSource() == button1) {
                     if (fisherman1 == fisherman1TookPosition) {
                         catchingFish();
                     }
-                } else {
+                } else if(e.getSource()==button2) {
                     usingBait();
                 }
             }
@@ -195,8 +206,20 @@ public class gamePanel extends JPanel implements ActionListener {
             score = 0;
             gameover = true;
             clip.stop();
+            playAgainButton.setVisible(true);
         }
         fisherman1 = fisherman1TookPosition;
+        repaint();
+    }
+    public void resetGame(){
+        score=10;
+        fishX=new int[]{400,250,500,280,340,650,100};
+        fishY=new int[]{300,300,280,350,250,255,248};
+        movingLeft=new boolean[]{true,true,true,true,true,true,true};
+        fisherman1=fisherman1TookPosition;
+        gameover=false;
+        playAgainButton.setVisible(false);
+        clip.loop(Clip.LOOP_CONTINUOUSLY);
         repaint();
     }
 }
