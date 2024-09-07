@@ -136,6 +136,9 @@ public class gamePanel extends JPanel implements ActionListener {
             g2D.setColor(Color.BLUE);
             g2D.setFont(new Font("Arial",Font.BOLD,60));
             g2D.drawString("GAME OVER",PANEL_HEIGHT/2-100,PANEL_WIDTH/2-100);
+
+            g2D.setFont(new Font("Arial",Font.BOLD,30));
+            g2D.drawString("Coins Collected: "+coin,PANEL_HEIGHT/2-90,PANEL_WIDTH/2);
         }
     }
 
