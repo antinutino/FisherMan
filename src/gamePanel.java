@@ -1,9 +1,7 @@
-import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 public class gamePanel extends JPanel implements ActionListener {
     // Constants
     private static final int PANEL_WIDTH = 600;
@@ -18,27 +16,26 @@ public class gamePanel extends JPanel implements ActionListener {
     private Image fisherman1CaughtFish;
     private Image fisherman1MissedFish;
     private Image fisherman1WithoutBait;
+    private Image bucket;
+    private Image[] bird;
     private Image[] fishImages;
 
     // Fish positions and directions
     private int[] fishX = {400, 250, 500, 280, 340, 650, 100};
     private int[] fishY = {300, 300, 280, 350, 250, 255, 248};
+    private int[] birdX = {10, 120, 200, 280, 320, 650, 420};
+    private int[] birdY = {30, 10, 30, 40, 20, 5, 20};
     private boolean[] movingLeft = {true, true, true, true, true, true, true};
 
     // Timer for animation
     private Timer timer;
 
     // Buttons
-    private JButton button1, button2, playAgainButton,startButton;
+    private JButton button1, button2;
 
     // Score
-    private int score = 10;
-    private int coin=0;
-    //music
-    private Clip clip;
-    private boolean gameover=false;
-    private boolean gameStarted=false;
-    private int fishSpeed=5;
+    private int score = 0;
+
     // Constructor
     public gamePanel() {
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
@@ -46,33 +43,19 @@ public class gamePanel extends JPanel implements ActionListener {
 
         // Load images
         loadImages();
-        // Load and play background music
-        loadMusic();
+
         // Set background color
         this.setBackground(Color.black);
 
         // Create and add buttons
         button1 = new JButton("PULL");
         button2 = new JButton("USE Bait");
-        playAgainButton=new JButton("Play Again");
-        startButton=new JButton("Start Game");
-
         button1.setBounds(200, 440, 80, 30);
         button2.setBounds(320, 440, 100, 30);
-        playAgainButton.setBounds(250,350,120,50);
-        startButton.setBounds(250,350,120,50);
-        playAgainButton.setVisible(false);
-        startButton.setVisible(true);
-
         button1.addActionListener(new ButtonClickListener());
         button2.addActionListener(new ButtonClickListener());
-        playAgainButton.addActionListener(new ButtonClickListener());
-        startButton.addActionListener(new ButtonClickListener());
-
         this.add(button2);
         this.add(button1);
-        this.add(playAgainButton);
-        this.add(startButton);
 
         // Start timer for animation
         timer = new Timer(100, this);
@@ -87,25 +70,19 @@ public class gamePanel extends JPanel implements ActionListener {
             fisherman1CaughtFish = new ImageIcon(getClass().getResource("/fisherman1catchedfish.png")).getImage();
             fisherman1MissedFish = new ImageIcon(getClass().getResource("/fisherman1missedfish.png")).getImage();
             fisherman1WithoutBait = new ImageIcon(getClass().getResource("/fisherman1withoutbait.png")).getImage();
+            bucket=new ImageIcon(getClass().getResource("/bucket.png")).getImage();
             fisherman1 = fisherman1TookPosition;
             fishImages = new Image[NUM_FISH];
+            bird=new Image[NUM_FISH];
             for (int i = 0; i < NUM_FISH; i++) {
                 fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
+            }
+            for (int i = 0; i < NUM_FISH; i++) {
+                bird[i] = new ImageIcon(getClass().getResource("/bird.png")).getImage();
             }
             fish1mirror = new ImageIcon(getClass().getResource("/fish1mirror.png")).getImage();
         } catch (Exception e) {
             System.out.println("Error loading image: " + e.getMessage());
-        }
-    }
-    // Load and play background music
-    private void loadMusic() {
-        try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource("/backgroundmusic.wav"));
-            clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            System.out.println("Error playing background music: " + e.getMessage());
         }
     }
 
@@ -119,64 +96,50 @@ public class gamePanel extends JPanel implements ActionListener {
         if (fisherman1 != null) {
             g2D.drawImage(fisherman1, 40, 10, 200, 300, this);
         }
-        if(gameStarted && !gameover){
         for (int i = 0; i < NUM_FISH; i++) {
             if (fishImages[i] != null) {
                 g2D.drawImage(fishImages[i], fishX[i], fishY[i], 60, 40, this);
             }
-          }
         }
+        for (int i = 0; i < NUM_FISH; i++) {
+            if (bird[i] != null) {
+                g2D.drawImage(bird[i], birdX[i], birdY[i], 25, 25, this);
+            }
+        }
+        g2D.drawImage(bucket, -10, 140, 100, 100, this);
         // Draw the score
         g2D.setColor(Color.WHITE);
         g2D.setFont(new Font("Arial", Font.BOLD, 20));
         g2D.drawString("Score: " + score, 10, 20);
-        g2D.drawString("Coins: "+coin,PANEL_WIDTH/2-40,20);
-        if(gameover)
-        {
-            g2D.setColor(Color.BLUE);
-            g2D.setFont(new Font("Arial",Font.BOLD,60));
-            g2D.drawString("GAME OVER",PANEL_HEIGHT/2-100,PANEL_WIDTH/2-100);
-
-            g2D.setFont(new Font("Arial",Font.BOLD,30));
-            g2D.drawString("Coins Collected: "+coin,PANEL_HEIGHT/2-90,PANEL_WIDTH/2);
-        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(gameStarted && !gameover) {
-            updateFishSpeed();
-
-            for (int i = 0; i < NUM_FISH; i++) {
-                if (movingLeft[i]) {
-                    fishX[i] -= fishSpeed;
-                    if (fishX[i] < getLeftBoundary(fishY[i])) {
-                        fishX[i] = getLeftBoundary(fishY[i]);
-                        movingLeft[i] = false;
-                        fishImages[i] = fish1mirror;
-                    }
-                } else {
-                    fishX[i] += fishSpeed;
-                    if (fishX[i] > getRightBoundary(fishY[i])) {
-                        fishX[i] = getRightBoundary(fishY[i]);
-                        movingLeft[i] = true;
-                        fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
-                    }
+        for (int i = 0; i < NUM_FISH; i++) {
+            if (movingLeft[i]) {
+                fishX[i] -= 5;
+                if (fishX[i] < getLeftBoundary(fishY[i])) {
+                    fishX[i] = getLeftBoundary(fishY[i]);
+                    movingLeft[i] = false;
+                    fishImages[i] = fish1mirror;
+                }
+            } else {
+                fishX[i] += 5;
+                if (fishX[i] > getRightBoundary(fishY[i])) {
+                    fishX[i] = getRightBoundary(fishY[i]);
+                    movingLeft[i] = true;
+                    fishImages[i] = new ImageIcon(getClass().getResource("/fish1.png")).getImage();
                 }
             }
         }
-        repaint();
-    }
 
-    private void updateFishSpeed(){
-        if(score>=50)
-            fishSpeed=12;
-        else if(score>=30)
-            fishSpeed=10;
-        else if(score>=20)
-            fishSpeed=7;
-        else
-            fishSpeed=5;
+        for (int i = 0; i < NUM_FISH; i++) {
+            birdX[i] -= 5;
+            if (birdX[i] < 0) {
+                birdX[i] = PANEL_WIDTH;
+            }
+        }
+        repaint();
     }
 
     private int getLeftBoundary(int y) {
@@ -196,27 +159,14 @@ public class gamePanel extends JPanel implements ActionListener {
     private class ButtonClickListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(e.getSource()==playAgainButton){
-                resetGame();
-            }
-            else if(e.getSource()==startButton){
-                startGame();
-            }
-           else if (!gameover && gameStarted) {
-                if (e.getSource() == button1) {
-                    if (fisherman1 == fisherman1TookPosition) {
-                        catchingFish();
-                    }
-                } else if(e.getSource()==button2) {
-                    usingBait();
+            if (e.getSource() == button1) {
+                if (fisherman1 == fisherman1TookPosition) {
+                    catchingFish();
                 }
+            } else {
+                usingBait();
             }
         }
-    }
-    public void startGame(){
-        gameStarted=true;
-        startButton.setVisible(false);
-        repaint();
     }
 
     public void catchingFish() {
@@ -226,7 +176,6 @@ public class gamePanel extends JPanel implements ActionListener {
                 fisherman1 = fisherman1CaughtFish;
                 fishX[i] = 650;
                 score += 10;
-                coin+=1;
                 checkFishCatching = false;
             }
         }
@@ -237,28 +186,7 @@ public class gamePanel extends JPanel implements ActionListener {
     }
 
     public void usingBait() {
-        score -=5;
-        if (score <= 0) {
-            score = 0;
-            gameover = true;
-            clip.stop();
-            playAgainButton.setVisible(true);
-        }
         fisherman1 = fisherman1TookPosition;
-        repaint();
-    }
-    public void resetGame(){
-        score=10;
-        coin=0;
-        fishX=new int[]{400,250,500,280,340,650,100};
-        fishY=new int[]{300,300,280,350,250,255,248};
-        movingLeft=new boolean[]{true,true,true,true,true,true,true};
-        fisherman1=fisherman1TookPosition;
-        gameover=false;
-        gameStarted=false;
-        startButton.setVisible(true);
-        playAgainButton.setVisible(false);
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
         repaint();
     }
 }
