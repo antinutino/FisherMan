@@ -35,7 +35,7 @@ public class GameFrame extends JFrame implements ActionListener {
         exitbutton2=panel2.getExitButton();
         gameoverback1=panel2.getBackButton();
         playagainbutton1=panel2.getPlayAgainButton();
-       isgameover=panel2.getisgameover();
+        isgameover=panel2.getisgameover();
         button1.addActionListener(this);
         button2.addActionListener(this);
         button3.addActionListener(this);
@@ -74,6 +74,7 @@ public class GameFrame extends JFrame implements ActionListener {
            startbutton.setVisible(true);
         }
         if(e.getSource()==exitbutton1){
+            System.out.println("hlw exit");
             this.getContentPane().removeAll();
             this.add(panel);
             this.revalidate();

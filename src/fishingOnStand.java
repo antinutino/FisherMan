@@ -33,16 +33,44 @@ public class fishingOnStand extends JPanel implements ActionListener, KeyListene
     private boolean[] movingLeft = {true, true, true, true, true, true, true};
 
     private Timer timer;
+    private Timer countdownTimer;
     private int score = 0;
-    public JButton exitbutton1;
+    public JButton exitbutton,button1Min,button2Min,button3Min,playagainbutton;
+    private int gameTimeRemaining,gameTime=0;
 
     public fishingOnStand() {
 
-        exitbutton1=new JButton("Exit");
-        exitbutton1.setBounds(PANEL_WIDTH / 2 - 50, PANEL_HEIGHT  - 60, 100, 50);
-        exitbutton1.addActionListener(this);
-        this.add(exitbutton1);
-        exitbutton1.setVisible(true);
+        exitbutton = new JButton("Exit");
+        exitbutton.setBounds(PANEL_WIDTH / 2 - 50, PANEL_HEIGHT - 60, 100, 50);
+        this.add(exitbutton);
+        exitbutton.addActionListener(this);
+        exitbutton.setVisible(true);
+
+        playagainbutton = new JButton("Play Again");
+        playagainbutton.setBounds(200, 200, 200, 50);
+        playagainbutton.addActionListener(this);
+        this.add(playagainbutton);
+        playagainbutton.setVisible(false);
+
+        button1Min = new JButton("1 Minute play");
+        button1Min.setBounds(200, 100, 200, 50);
+        button1Min.addActionListener(this);
+        this.add(button1Min);
+        button1Min.setVisible(true);
+
+        button2Min = new JButton("2 Minutes play");
+        button2Min.setBounds(200, 160, 200, 50);
+        button2Min.addActionListener(this);
+        this.add(button2Min);
+        button2Min.setVisible(true);
+
+        button3Min = new JButton("3 Minutes play");
+        button3Min.setBounds(200, 220, 200, 50);
+        button3Min.addActionListener(this);
+        this.add(button3Min);
+        button3Min.setVisible(true);
+
+
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.setLayout(null);
 
@@ -54,6 +82,19 @@ public class fishingOnStand extends JPanel implements ActionListener, KeyListene
         // Timer for movement
         timer = new Timer(100, this);
         timer.start();
+
+        countdownTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (gameTimeRemaining > 0) {
+                    gameTimeRemaining--;
+                    repaint();
+                } else {
+                    countdownTimer.stop();
+                }
+            }
+        });
+        countdownTimer.start();
 
         // Enable key events
         setFocusable(true);
@@ -89,6 +130,24 @@ public class fishingOnStand extends JPanel implements ActionListener, KeyListene
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2D = (Graphics2D) g;
+          if(gameTime==0){
+              this.setBackground(new Color(40, 200, 230));
+              g2D.setFont(new Font("Arial", Font.BOLD, 50));
+              g2D.setColor(Color.WHITE);
+              return;
+          }
+
+          if(gameTime!=0&&gameTimeRemaining==0){
+              this.setBackground(new Color(40, 200, 230));
+              g2D.setFont(new Font("Arial", Font.BOLD, 50));
+              g2D.drawString("Time is Over", PANEL_WIDTH/4, 100);
+              g2D.drawString("Score "+score, PANEL_WIDTH/3+10, 150);
+              playagainbutton.setVisible(true);
+              return;
+
+          }
+
+
         if (backgroundImage != null) {
             g2D.drawImage(backgroundImage, 0, 0, this.getWidth(), this.getHeight(), this);
         }
@@ -110,10 +169,49 @@ public class fishingOnStand extends JPanel implements ActionListener, KeyListene
         g2D.setColor(Color.WHITE);
         g2D.setFont(new Font("Arial", Font.BOLD, 20));
         g2D.drawString("Score: " + score, 10, 20);
+
+        int minutes = gameTimeRemaining / 60;
+        int seconds = gameTimeRemaining % 60;
+        String timeString = String.format("Time: %02d:%02d", minutes, seconds);
+        g2D.drawString(timeString, PANEL_WIDTH - 150, 20);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(e.getSource()==playagainbutton){
+            score=0;
+            gameTime=0;
+            button1Min.setVisible(true);
+            button2Min.setVisible(true);
+            button3Min.setVisible(true);
+            playagainbutton.setVisible(false);
+            fishingOnStand playagain=new fishingOnStand();
+        }
+
+        if (e.getSource() == button1Min) {
+            button1Min.setVisible(false);
+            button2Min.setVisible(false);
+            button3Min.setVisible(false);
+            gameTime = 1;
+            gameTimeRemaining = gameTime*60;
+            countdownTimer.start();
+        } else if (e.getSource() == button2Min) {
+            button1Min.setVisible(false);
+            button2Min.setVisible(false);
+            button3Min.setVisible(false);
+            gameTime = 2;
+            gameTimeRemaining = gameTime*60;
+            countdownTimer.start();
+        } else if (e.getSource() == button3Min) {
+            button1Min.setVisible(false);
+            button2Min.setVisible(false);
+            button3Min.setVisible(false);
+            gameTime = 3;
+            gameTimeRemaining = gameTime*60;
+            countdownTimer.start();
+        }
+
+
         for (int i = 0; i < NUM_FISH; i++) {
             if (movingLeft[i]) {
                 fishX[i] -= 5;
@@ -151,7 +249,7 @@ public class fishingOnStand extends JPanel implements ActionListener, KeyListene
         }
     }
     public JButton getExitbutton(){
-        return exitbutton1;
+        return exitbutton;
     }
 
     private int getRightBoundary(int y) {

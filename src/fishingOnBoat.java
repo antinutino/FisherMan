@@ -54,11 +54,14 @@ public class fishingOnBoat  extends JPanel implements ActionListener, KeyListene
     private boolean[] movingLeft = {true, true, true, true, true, true, true};
     private Timer timer;
 
+    private Timer countdownTimer;
+
     private boolean isScrolling = false;
     private int score = 0;
     private JButton exitButton;
     private JButton playAgainButton;
     private JButton backButton;
+    private int speed=40;
     public fishingOnBoat() {
         this.setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
         this.setLayout(null);
@@ -81,11 +84,28 @@ public class fishingOnBoat  extends JPanel implements ActionListener, KeyListene
         backButton.setVisible(false);
 
         this.setBackground(Color.black);
-        timer = new Timer(30, this);  // Start a faster timer for smoother animation
-        timer.start();  // Start the timer immediately for animation
+        timer = new Timer(speed, this);
+        timer.start();
 
-        this.setFocusable(true);  // Make JPanel focusable to receive key events
-        this.addKeyListener(this); // Add KeyListener to the panel
+// Countdown timer to reduce speed every 2000 milliseconds
+        countdownTimer = new Timer(2000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Decrease speed, but ensure it doesn't go below 5
+                if (speed > 5) {
+                    speed -= 1;
+                    System.out.println("Speed decreased to: " + speed);  // Debug message to track speed changes
+                    // Update the timer's delay to reflect the new speed
+                    timer.setDelay(speed);
+                }
+            }
+        });
+
+// Start the countdown timer
+        countdownTimer.start();
+
+        this.setFocusable(true);
+        this.addKeyListener(this);
     }
 
     private void loadImages() {
@@ -128,10 +148,11 @@ public class fishingOnBoat  extends JPanel implements ActionListener, KeyListene
                g2D.setFont(new Font("Arial", Font.BOLD, 50));
                g2D.setColor(Color.WHITE);
                g2D.drawString("Game Over", PANEL_WIDTH / 2 - 150, PANEL_HEIGHT / 2 - 100);
-               g2D.drawString("Score:"+score, PANEL_WIDTH / 2 - 150, PANEL_HEIGHT / 2 - 50);
+               g2D.drawString("Score "+score, PANEL_WIDTH / 2 - 150+20, PANEL_HEIGHT / 2 - 50);
                playAgainButton.setVisible(true);
                backButton.setVisible(true);
                exitButton.setVisible(false);
+               speed=40;
                return;
            }
 

@@ -202,6 +202,11 @@ import java.awt.event.ActionListener;
             }
         }
 
+        public JButton getbutton1(){
+            return button1;
+        }
+
+
 
 
 }
