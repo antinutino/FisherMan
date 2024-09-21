@@ -258,7 +258,7 @@ public class fishingOnStand extends JPanel implements ActionListener, KeyListene
 
     private void loadMusic() {
         try {
-            AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File("/backgroundmusic.wav"));
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(new File("src/backgroundmusic.wav"));
             backgroundMusic = AudioSystem.getClip();
             backgroundMusic.open(audioStream);
             backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
